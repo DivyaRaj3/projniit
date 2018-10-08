@@ -1,0 +1,19 @@
+
+
+
+
+select employer_name, ROUND((count(*) * 100/3002048),2) as c1 from h1b where case_status = "CERTIFIED" or case_status= "CERTIFIED-WITHDRAWN" group by employer_name order by c1 desc limit 10;
+
+
+INFOSYS LIMITED	4.33
+TATA CONSULTANCY SERVICES LIMITED	2.14
+WIPRO LIMITED	1.58
+DELOITTE CONSULTING LLP	1.2
+ACCENTURE LLP	1.11
+IBM INDIA PRIVATE LIMITED	1.0
+MICROSOFT CORPORATION	0.84
+HCL AMERICA	0.75
+ERNST & YOUNG U.S. LLP	0.6
+TECH MAHINDRA (AMERICAS)	0.57
+Time taken: 295.158 seconds, Fetched: 10 row(s)
+

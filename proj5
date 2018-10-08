@@ -1,0 +1,102 @@
+import java.io.IOException;
+import java.util.TreeMap;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+//import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.NullWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+
+
+  public class top5s {
+		public static class Top5Mapper extends
+		Mapper<LongWritable, Text,Text,Text> {
+			public void map(LongWritable key, Text value, Context context
+	        ) throws IOException, InterruptedException {
+				try {
+				String[] str = value.toString().split(",");
+				String compname= str[2];
+				String jobtitle= str[5];
+				
+				if(str[5].equals("DATA SCIENTIST"))
+				context.write(new Text(compname),new Text(jobtitle));
+		           
+	         }
+	         catch(Exception e)
+	         {
+	            System.out.println(e.getMessage());
+	         }
+	      }
+	   }
+	
+
+		public static class Top5Reducer extends
+		Reducer<Text, Text, NullWritable, Text> 
+		{
+			private TreeMap<Long,Text> repToRecordMap = new TreeMap<Long,Text>();
+
+			public void reduce(Text key, Iterable<Text> values,
+					Context context) throws IOException, InterruptedException 
+					{
+				
+				long count=0;
+		    	    
+	    		for(Text v :values)
+	    		{	
+	    				count++;
+	    			
+	    		}
+	    		
+	    	// LongWritable t=new LongWritable(count);
+	    	//	context.write(key, t);
+	    	 		// top 1
+	    	 		String cn="";
+					String cnct="";
+					String tt="";
+					cn = key.toString();
+					tt= String.format("%d", count);	 
+					cnct= cn + ',' + tt;
+					 
+					repToRecordMap.put(new Long(count), new Text(cnct));
+					
+					if (repToRecordMap.size() > 1)
+					{
+					repToRecordMap.remove(repToRecordMap.firstKey());
+					}
+					
+			  }
+					protected void cleanup(Context context) throws IOException,
+					InterruptedException 
+					{
+						for (Text t : repToRecordMap.values()) 
+						{
+						// Output our five records to the file system with a null key
+						context.write(NullWritable.get(), t);
+						
+						}
+					}
+			
+		}
+			
+		public static void main(String[] args) throws Exception {
+			
+		    Configuration conf = new Configuration();
+		    Job job = Job.getInstance(conf, "Top record for largest amount spent");
+		    job.setJarByClass(top5s.class);
+		    job.setMapperClass(Top5Mapper.class);
+		    job.setReducerClass(Top5Reducer.class);
+		    job.setMapOutputKeyClass(Text.class);
+		    job.setMapOutputValueClass(Text.class);
+		    job.setOutputKeyClass(NullWritable.class);
+		    job.setOutputValueClass(Text.class);
+		    job.setNumReduceTasks(1);
+		    FileInputFormat.addInputPath(job, new Path(args[0]));
+		    FileOutputFormat.setOutputPath(job, new Path(args[1]));
+		    System.exit(job.waitForCompletion(true) ? 0 : 1);
+		  }
+	}

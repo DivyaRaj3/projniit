@@ -1,0 +1,15 @@
+
+select job_title, ROUND((count(*) * 100/3002048),2) as c1 from h1b where case_status = "CERTIFIED" or case_status= "CERTIFIED-WITHDRAWN" group by job_title order by c1 desc limit 10;
+
+
+PROGRAMMER ANALYST	4.11
+SOFTWARE DEVELOPERS	3.78
+ APPLICATIONS	3.78
+Software Developers	3.75
+ Applications	3.44
+Computer Systems Analysts	3.39
+ ALL OTHER	3.16
+ All Other	2.95
+Computer Programmers	2.73
+COMPUTER SYSTEMS ANALYSTS	2.36
+
