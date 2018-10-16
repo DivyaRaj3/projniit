@@ -1,0 +1,4 @@
+hive> insert overwrite directory '/niit' select job_title, ROUND((count(*) * 100/3002048),2) as c1 from h1b where case_status = "CERTIFIED" or case_status= "CERTIFIED-WITHDRAWN" group by job_title order by c1 desc limit 10;
+
+
+sqoop export --connect jdbc:mysql://localhost/db1 --username root --password 'root' --table h   --export-dir /hanoi/000000_0 --input-fields-terminated-by ',' ;
